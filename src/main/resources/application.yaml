@@ -1,0 +1,37 @@
+server:
+  port: 8077
+  servlet:
+    context-path: '/employee-management'
+spring:
+  application:
+    name: employee-management-service
+  h2:
+    console.enabled: true
+    path: /h2-console
+    settings.trace: false
+    settings.web-allow-others: false
+  datasource:
+    url: jdbc:h2:mem:employeedb
+    #url: jdbc:h2:./data/db
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+
+
+

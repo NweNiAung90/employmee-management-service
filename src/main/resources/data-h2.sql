@@ -1,0 +1,5 @@
+INSERT INTO employee (id, first_name, last_name, title, external_title, department, gender, date_of_birth) VALUES (1, 'William', 'Smith', '6 - Chief Information Technology Officer', 'CEO', 'IT', 'male' , '1 January 1963');
+INSERT INTO employee (id, first_name, last_name, title, external_title, department, gender, date_of_birth) VALUES (2, 'Rezza', 'Fredd', '4A - Sr Manager', 'Team Lead', 'IT', 'male' , '1 January 1978');
+INSERT INTO employee (id, first_name, last_name, title, external_title, department, gender, date_of_birth) VALUES (3, 'Mohan', 'Kumar', '3C - Officer', 'Web Developer', 'IT', 'male' , '1 June 1997');
+INSERT INTO employee (id, first_name, last_name, title, external_title, department, gender, date_of_birth) VALUES (4, 'Cindy', 'Mac', '3B - Senior Officer', 'Senior Developer', 'IT', 'female' , '19 May 1990');
+INSERT INTO employee (id, first_name, last_name, title, external_title, department, gender, date_of_birth) VALUES (5, 'Linda', 'Greedman', '2A - Senior Associate', 'Quality ', 'IT', 'female' , '11 October 2001');
