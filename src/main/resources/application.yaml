@@ -21,6 +21,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+security:
+  forceResetInMs: 300000
+  jwt.token.secret-key-A128CBC_HS256: 103A59196D15DDF5B0525FA518A771D8
+
 logging:
   level:
     org.springframework.web: DEBUG

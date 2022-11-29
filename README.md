@@ -17,7 +17,7 @@ RESTFul Apis for Employee Management Service
 
 ```
 H2 in memory DB
-http://localhost:8077/h2-console
+http://localhost:8077/employee-management/h2-console
 
 Swagger File
-http://localhost:8077/swagger-ui/index.html
+http://localhost:8077/employee-management/swagger-ui/index.html

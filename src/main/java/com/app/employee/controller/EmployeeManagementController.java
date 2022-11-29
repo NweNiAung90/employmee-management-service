@@ -16,9 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
-import static com.app.employee.constant.Enum.DB_EXCEPTION;
 
 @RestController()
 @RequestMapping(value = "/api/v1")
@@ -38,11 +37,12 @@ public class EmployeeManagementController {
                     content = @Content)})
     @GetMapping("/employees")
     public ResponseEntity<ApiResponse> getAllEmployees(@RequestParam(defaultValue = "0") Integer page,
-                                                       @RequestParam(defaultValue = "10") Integer size) {
+                                                       @RequestParam(defaultValue = "10") Integer size, HttpServletRequest httpServletRequest) {
         logger.info("Incoming Get All Employees method in REST EmployeeManagementController with page : " + page + " and size " + size);
 
         try {
-            ApiResponse apiResponse = employeeManagementService.getAllEmployees(page, size);
+
+            ApiResponse apiResponse = employeeManagementService.getAllEmployees(page, size, httpServletRequest);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -65,12 +65,12 @@ public class EmployeeManagementController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content)})
     @GetMapping("/employees/{employeeId}")
-    public ResponseEntity<ApiResponse> getEmployee(@PathVariable(value = "employeeId") Long employeeId) {
+    public ResponseEntity<ApiResponse> getEmployee(@PathVariable(value = "employeeId") Long employeeId, HttpServletRequest httpServletRequest) {
         logger.info("Incoming Get Employee method in REST EmployeeManagementController with employee Id : " + employeeId);
 
         try {
 
-            ApiResponse apiResponse = employeeManagementService.getEmployeeById(employeeId);
+            ApiResponse apiResponse = employeeManagementService.getEmployeeById(employeeId, httpServletRequest);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -93,12 +93,12 @@ public class EmployeeManagementController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content)})
     @PostMapping("/employees")
-    public ResponseEntity<ApiResponse> saveEmployee(@Valid @RequestBody EmployeeRequest request) {
+    public ResponseEntity<ApiResponse> saveEmployee(@Valid @RequestBody EmployeeRequest request, HttpServletRequest httpServletRequest) {
         logger.info("Incoming Save Employee method in REST EmployeeManagementController with Employee Request: " + request);
 
         try {
 
-            ApiResponse apiResponse = employeeManagementService.saveEmployee(request);
+            ApiResponse apiResponse = employeeManagementService.saveEmployee(request, httpServletRequest);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -121,12 +121,13 @@ public class EmployeeManagementController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content)})
     @PutMapping("/employees/{employeeId}")
-    public ResponseEntity<ApiResponse> modifyEmployee(@Valid @RequestBody EmployeeRequest request, @PathVariable(value = "employeeId") Long employeeId) {
+    public ResponseEntity<ApiResponse> modifyEmployee(@Valid @RequestBody EmployeeRequest request, @PathVariable(value = "employeeId") Long employeeId,
+                                                      HttpServletRequest httpServletRequest) {
         logger.info("Incoming Save Employee method in REST EmployeeManagementController with Employee Request: " + request);
 
         try {
 
-            ApiResponse apiResponse = employeeManagementService.modifyEmployee(request, employeeId);
+            ApiResponse apiResponse = employeeManagementService.modifyEmployee(request, employeeId, httpServletRequest);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -149,12 +150,12 @@ public class EmployeeManagementController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content)})
     @DeleteMapping("/employees/{employeeId}")
-    public ResponseEntity<ApiResponse> deleteEmployee(@PathVariable(value = "employeeId") Long employeeId) {
+    public ResponseEntity<ApiResponse> deleteEmployee(@PathVariable(value = "employeeId") Long employeeId, HttpServletRequest httpServletRequest) {
         logger.info("Incoming Save Employee method in REST EmployeeManagementController with Employee Request: " + employeeId);
 
         try {
 
-            ApiResponse apiResponse = employeeManagementService.deleteEmployee(employeeId);
+            ApiResponse apiResponse = employeeManagementService.deleteEmployee(employeeId, httpServletRequest);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
 
         } catch (Exception e) {
