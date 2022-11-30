@@ -1,6 +1,6 @@
 
 ###Builder Image###
-FROM maven:3.6.3-jdk-11-alpine-1 as builder
+FROM maven:3-openjdk-8 as builder
 
 COPY . /app/
 WORKDIR /app/
@@ -11,6 +11,7 @@ RUN mvn clean package
 RUN mv target/*.jar app.jar
 
 ###Executable Image###
-FROM openjdk:11-alpine
-COPY --from=builder /app/app.jar /app/app.jar
+WORKDIR /app
+FROM openjdk:8-jdk-alpine
+COPY --from=builder /app/app.jar .
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar"]
