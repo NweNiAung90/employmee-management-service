@@ -1,17 +1,6 @@
+FROM openjdk:12-alpine
+WORKDIR /opt/app/
+COPY target /opt/app/
 
-###Builder Image###
-FROM maven:3-openjdk-8 as builder
-
-COPY . /app/
-WORKDIR /app/
-
-# Build maven application
-RUN mvn clean package
-
-RUN mv target/*.jar app.jar
-
-###Executable Image###
-WORKDIR /app
-FROM openjdk:8-jdk-alpine
-COPY --from=builder /app/app.jar .
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","app.jar"]
+EXPOSE 8077
+CMD ["java", "-jar", "employee-management-service-1.0.0.jar"]
