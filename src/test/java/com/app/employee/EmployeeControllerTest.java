@@ -4,19 +4,22 @@ import com.app.employee.model.response.ApiResponse;
 import com.app.employee.model.response.EmployeeListResponse;
 import com.app.employee.model.response.EmployeeResponse;
 import com.app.employee.service.EmployeeManagementService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.modelmapper.ModelMapper;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,13 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
 public class EmployeeControllerTest {
 
     @LocalServerPort
     private int port;
 
     @Autowired
+    private WebApplicationContext webApplicationContext;
     private MockMvc mvc;
 
     @MockBean
@@ -45,24 +48,29 @@ public class EmployeeControllerTest {
     TestRestTemplate restTemplate = new TestRestTemplate();
     HttpHeaders headers = new HttpHeaders();
 
-    @Test
-    public void testRetrieveAllEmployee() throws Exception {
-
-        this.mvc.perform(get("/api/v1/employees?page=0&size=3")
-                        .header(HttpHeaders.AUTHORIZATION, token)
-                        .contentType("application/json"))
-                .andDo(print())
-                .andExpect(status().isOk());
-                //.andExpect(content().string(containsString("William")));
+    @Before
+    public void setUp() {
+        mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @Test
+    @WithMockUser(username = "stitch")
+    public void testRetrieveAllEmployee() throws Exception {
+
+        this.mvc.perform(get("/api/v1/employees?page=0&size=3")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+                        .contentType("application/json"))
+                .andDo(print())
+                .andExpect(status().isOk());
+        //.andExpect(content().string(containsString("William")));
+    }
+
+    @Test
+    @WithMockUser(username = "stitch")
     public void givenEmployees_whenGetEmployees_thenReturnJsonArray() throws Exception {
 
         Integer page = 0;
         Integer size = 1;
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader(HttpHeaders.AUTHORIZATION, token);
 
         EmployeeResponse employee = new EmployeeResponse();
         employee.setId(1L);
@@ -75,8 +83,8 @@ public class EmployeeControllerTest {
         employee.setDateOfBirth("1 January 1963");
 
         List<EmployeeResponse> allEmployees = Arrays.asList(employee);
-        EmployeeListResponse employeeListResponse = new EmployeeListResponse();
-        employeeListResponse.setEmployeeResponseList(allEmployees);
+        ModelMapper modelMapper = new ModelMapper();
+        EmployeeListResponse employeeListResponse = modelMapper.map(employee, EmployeeListResponse.class);
         employeeListResponse.setPage(page);
         employeeListResponse.setSize(size);
         employeeListResponse.setTotalElements(5L);
@@ -85,27 +93,33 @@ public class EmployeeControllerTest {
 
         ApiResponse apiResponse = new ApiResponse(HttpStatus.OK.value(), HttpStatus.OK, SUCCESS, employeeListResponse);
         System.out.println("Api Response : " + apiResponse);
-        given(employeeManagementService.getAllEmployees(page, size, request)).willReturn(apiResponse);
+        given(employeeManagementService.getAllEmployees(page, size)).willReturn(apiResponse);
 
-        this.mvc.perform(get("/api/v1/employees?page=0&size=1"))
+        this.mvc.perform(get("/api/v1/employees?page=0&size=1")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(username = "stitch")
     public void testRetrieveEmployee() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", token);
-        HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+        HttpHeaders headers = getHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer token");
+        HttpEntity<String> jwtEntity = new HttpEntity<String>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "http://localhost:" + port + "/employee-management/api/v1/employees/1", HttpMethod.GET, entity, String.class);
-
+                "http://localhost:" + port + "/employee-management/api/v1/employees/1", HttpMethod.GET, jwtEntity, String.class);
 
         String expected = "{\"httpStatusCode\":200,\"httpStatus\":\"OK\",\"message\":\"success\",\"employeeResponseList\":null,\"employeeResponse\":{\"id\":1,\"firstName\":\"William\",\"lastName\":\"Smith\",\"title\":\"6 - Chief Information Technology Officer\",\"externalTitle\":\"CEO\",\"department\":\"IT\",\"gender\":\"male\",\"dateOfBirth\":\"1 January 1963\"}}";
 
         JSONAssert.assertEquals(expected, response.getBody(), false);
     }
 
-
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+        return headers;
+    }
 }
